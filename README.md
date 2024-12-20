@@ -1,4 +1,4 @@
-# Vending Machine Emotion-based Snack Recommendation System
+# SentiVend : Vending Machine Emotion-based Snack Recommendation System
 
 This project uses facial emotion recognition and audio tone analysis to suggest snacks and drinks from a vending machine based on the user's emotional and tonal response. The system leverages TinyML to deploy the models on an embedded device (SeeedStudio XIAO ESP32S3) with an onboard camera and microphone.
 
