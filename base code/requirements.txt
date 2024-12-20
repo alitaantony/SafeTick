@@ -1,8 +1,8 @@
-TensorFlow Lite for Microcontrollers - Latest stable version
-ESP32 Board Support - Latest stable version
-Seeed Arduino TFT Library - Latest version
-Arduino_TensorFlowLite - Latest version
-ArduinoJson - 6.18.0 (or latest)
-ESP32 Camera - Latest version
-SoftwareSerial - Pre-installed (latest)
-python - Pre-installed 3.8.10
+tensorflow - 2.11.0 (or latest compatible version)
+tensorflow-lite - 2.11.0 (or latest compatible version)
+librosa - 0.9.2
+numpy - 1.23.1 (or latest)
+scipy - 1.9.1 (or latest)
+soundfile - 0.10.3.post1
+pyserial - 3.5 (or latest)
+opencv-python - 4.7.0 (or latest)
