@@ -1,104 +1,98 @@
-# SentiVend : Vending Machine Emotion-based Snack Recommendation System
+# SafeTick : PPE Detection System
 
-This project uses facial emotion recognition and audio tone analysis to suggest snacks and drinks from a vending machine based on the user's emotional and tonal response. The system leverages TinyML to deploy the models on an embedded device (SeeedStudio XIAO ESP32S3) with an onboard camera and microphone.
+## Overview
+This project utilizes a MobileNetV2-based deep learning model to detect Personal Protective Equipment (PPE) compliance in real-time. It is designed for deployment on edge devices, such as Raspberry Pi, using TensorFlow Lite for efficient inference. The system integrates hardware and software components to provide a complete solution for worker safety monitoring.
 
 ## Features
+- **Lightweight Model**: MobileNetV2 architecture optimized for edge devices.
+- **Real-time Detection**: Fast inference using TensorFlow Lite on resource-constrained devices.
+- **Integrated Hardware**: Utilizes a Raspberry Pi camera and Grove Vision AI module for image capture and processing.
+- **Feedback System**: Alerts and compliance ticks displayed in real-time on the Raspberry Pi screen.
 
-- **Facial Emotion Recognition**: Detects the user's emotional state through facial expressions.
-- **Audio Tone Recognition**: Analyzes the user's voice tone to understand their mood.
-- **Snack Suggestion**: Based on facial and tonal analysis, the system recommends a snack or drink from the vending machine.
-- **TinyML Deployment**: The model is optimized and deployed on the SeeedStudio XIAO ESP32S3 microcontroller.
+## Architecture
+### Network Architecture
+- **Base Model**: MobileNetV2 pre-trained on the ImageNet dataset.
+- **Input Layer**: Expects RGB images of size (224, 224, 3).
+- **Global Average Pooling**: Reduces spatial dimensions and prepares the feature vector.
+- **Dense Layers**: Includes ReLU and sigmoid activation for multi-label classification.
+- **Output Layer**: Provides predictions for PPE compliance.
 
-## Hardware Used
+### Hardware Integration
+1. **Image Capture**: The Raspberry Pi Rev 3 camera captures worker images.
+2. **AI Processing**: Images are sent to the Grove Vision AI module for PPE detection.
+3. **Decision Making**:
+   - **If PPE is detected**:
+     - A compliance tick is generated and displayed on the Raspberry Pi.
+   - **If PPE is not detected**:
+     - A non-compliance alert is displayed.
 
-- **SeeedStudio XIAO-ESP32S3 Sense**
-  - Onboard Camera
-  - PDM Microphone
-  - ESP32S3 Chipset
-- **SeeedStudio XIAO nRF52840 Sense**
-  - IMU Sensor
-  - PDM Microphone
-- **SeeedStudio Grove Vision 2**
-  - Arm Cortex-M55
-  - Ethos-U55
-  - Supports TensorFlow and PyTorch
+### Workflow
+1. **Image Capture**:
+   - Captures worker image via Raspberry Pi camera.
+2. **AI Processing**:
+   - Images are analyzed using the MobileNetV2 model (converted to TensorFlow Lite).
+3. **Communication**:
+   - Uses MQTT to transmit compliance status between devices.
+4. **Real-Time Feedback**:
+   - Displays compliance or alerts on the Raspberry Pi screen.
 
-## Software Requirements
+## Tools and Libraries Used
+### Model Training
+- **TensorFlow**: Framework for building and training the model.
+- **Keras**: High-level API for defining the model architecture.
+- **Keras Applications**: MobileNetV2 pre-trained model for transfer learning.
 
-- **Python**: 3.8.0 or higher
-- **Libraries**:
-  - `tensorflow` (2.11.0 or latest)
-  - `tensorflow-lite` (2.11.0 or latest)
-  - `librosa` (0.9.2)
-  - `numpy` (1.23.1)
-  - `scipy` (1.9.1)
-  - `soundfile` (0.10.3.post1)
-  - `pyserial` (3.5)
-  - `opencv-python` (4.7.0)
-- **Arduino IDE** (for programming the ESP32)
-- **ESP32 Board Support** in Arduino IDE
+### Data Preparation
+- **ImageDataGenerator**: Real-time data augmentation, including scaling and random transformations.
+
+### Deployment
+- **TensorFlow Lite**: Optimizes the trained model for inference on edge devices.
+- **TF Lite Interpreter**: Executes the TensorFlow Lite model.
+
+### Visualization and Evaluation
+- **Matplotlib/Seaborn**: For visualizing training accuracy and loss.
+- **Scikit-learn**: Computes additional evaluation metrics (F1-score, precision, recall).
+
+### Hardware
+- **Raspberry Pi**: Central hub for data processing and feedback.
+- **Grove Vision AI Module**: Performs AI inference for PPE detection.
+- **Xiao ESP32S3**: Handles communication between modules using I2C and MQTT.
 
 ## Installation
-
-### Python Dependencies
-
-Install Python packages using `pip`:
-
-### Arduino IDE Setup
-
-1. Install **ESP32 Board Support** in Arduino IDE:
-   - Go to **File > Preferences** in Arduino IDE.
-   - In the **Additional Boards Manager URLs** field, add the ESP32 URL: `https://dl.espressif.com/dl/package_esp32_index.json`.
-   - Go to **Tools > Board > Boards Manager**, search for "ESP32", and install it.
-
-2. Install the **TensorFlow Lite for Microcontrollers** library:
-   - In Arduino IDE, go to **Sketch > Include Library > Manage Libraries**.
-   - Search for **"TensorFlow Lite for Microcontrollers"** and install it.
-
----
-
-### Uploading Code to ESP32
-
-1. Open the `emotion_model_inference.ino` file in Arduino IDE.
-2. Select the correct **Board**:
-   - Go to **Tools > Board** and select **SeeedStudio XIAO ESP32S3**.
-3. Select the correct **Port**:
-   - Go to **Tools > Port** and select the port associated with the XIAO ESP32S3.
-4. Click **Upload** to upload the code to the device.
-
----
-
-### Model Deployment
-
-1. **Train the Models**:
-   - Train the **Facial Emotion Recognition Model** and **Tone Recognition Model** using appropriate datasets.
-   - For facial emotion recognition, use datasets like FER-2013. For tone recognition, datasets like EmoReact can be used.
-   
-2. **Convert Models to TensorFlow Lite**:
-   - Once the models are trained, convert them into TensorFlow Lite format (`.tflite`).
-   - Use TensorFlow's `TFLiteConverter` to convert the models.
-
-3. **Include the Models in Arduino Project**:
-   - Copy the `.tflite` model files into the **`data`** folder in your Arduino project.
-   - Modify the code in the `emotion_model_inference.ino` file to load and use these models.
-
----
-
-### Usage
-
-1. The user clicks the **"Choose for me"** button on the interface to begin the process.
-2. The **camera** on the XIAO ESP32S3 captures the user's facial expression to detect emotions such as happiness, sadness, anger, etc.
-3. The **microphone** records the user's response to the prompt (e.g., "How are you today?") for tonal analysis.
-4. The system combines the results of both **facial emotion recognition** and **audio tone analysis** to determine the user's emotional state.
-5. Based on this analysis, the system suggests an appropriate snack or drink from the vending machine.
-
----
-
-### Contributing
-
-Contributions are welcome! Feel free to fork the repository, make improvements, and submit pull requests. Here’s how you can contribute:
-
-1. **Fork the Repository**: Click the **Fork** button on the top right of this repository.
-2. **Clone your fork**:
+1. Clone this repository:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/Vending-Machine-Emotion-Based-Snack-Recommendation-System.git
+   git clone https://github.com/your-repo-name/ppe-detection.git
+   ```
+2. Install the required Python libraries:
+   ```bash
+   pip install tensorflow matplotlib scikit-learn
+   ```
+3. Deploy the TensorFlow Lite model to the Raspberry Pi.
+4. Connect hardware components as described in the architecture section.
+
+## Usage
+1. Start the Raspberry Pi application to capture images.
+2. Run the TensorFlow Lite inference script:
+   ```bash
+   python run_inference.py
+   ```
+3. Monitor compliance ticks and alerts on the Raspberry Pi screen.
+
+## Results
+The system provides real-time PPE compliance monitoring with:
+- High accuracy using MobileNetV2.
+- Optimized inference for edge devices.
+- Instant feedback for workers.
+
+## Future Enhancements
+- Add support for additional safety measures.
+- Extend compatibility to other hardware setups.
+- Implement a cloud-based dashboard for compliance tracking.
+
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+Contributions are welcome! Feel free to submit a pull request or open an issue for suggestions and improvements.
+
