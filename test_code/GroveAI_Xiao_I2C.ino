@@ -1,56 +1,45 @@
-#include <Wire.h>
-#include <Grove_Vision_AI.h>  // Include the Grove Vision AI library
+#include <Seeed_Arduino_SSCMA.h>
 
-#define I2C_ADDRESS 0x62  // I2C address for Grove Vision AI module
+SSCMA AI;
 
-GroveVisionAI vision;  // Create an instance of the GroveVisionAI class
-
-void setup() {
-  // Start serial communication for debugging
-  Serial.begin(115200);
-
-  // Initialize Grove Vision AI module using I2C
-  if (!vision.begin(&Wire, I2C_ADDRESS)) {
-    Serial.println("Grove Vision AI initialization failed!");
-    while (1);  // Halt if initialization fails
-  }
-
-  Serial.println("Grove Vision AI initialized successfully.");
-  
-  // Invoke the model (you can adjust the number of invocations and parameters as needed)
-  if (vision.invoke(1)) {
-    Serial.println("Model invocation successful.");
-  } else {
-    Serial.println("Model invocation failed.");
-  }
+void setup()
+{
+    AI.begin();
+    Serial.begin(9600);
 }
 
-void loop() {
-  // Check how many bytes are available to read from the Grove Vision AI
-  int availableBytes = vision.available();
-  
-  if (availableBytes > 0) {
-    // Prepare a buffer to read the data from the Grove Vision AI
-    char data[availableBytes];
-    
-    // Read the available data
-    int bytesRead = vision.read(data, availableBytes);
-    
-    // Check if the data was read successfully
-    if (bytesRead > 0) {
-      // Print the received data to the serial monitor
-      Serial.print("Received data: ");
-      for (int i = 0; i < bytesRead; i++) {
-        Serial.print(data[i], HEX);  // Print in hexadecimal format
-        Serial.print(" ");
-      }
-      Serial.println();
-      
-      // Optionally, you can parse or process the data here
-    } else {
-      Serial.println("Failed to read data from Grove Vision AI.");
+void loop()
+
+{
+    if (!AI.invoke())
+    {
+        for (int i = 0; i < AI.boxes().size(); i++)
+        {
+            int target = AI.boxes()[i].target;
+            float score = AI.boxes()[i].score;
+
+            // Check if confidence is greater than 50%
+            if (score > 50.0 && target == 0) // Assuming target '0' is elephant
+            {
+                Serial.println("This is an elephant");
+                return; // Exit the loop to avoid further processing
+            }
+        }
+
+        // Optionally check for class-based confidence if required
+        for (int i = 0; i < AI.classes().size(); i++)
+        {
+            int target = AI.classes()[i].target;
+            float score = AI.classes()[i].score;
+
+            if (score > 50.0 && target == 0) // Assuming target '0' is elephant
+            {   
+                
+                Serial.println("This is an elephant");
+                return; // Exit the loop to avoid further processing
+            }
+        }
     }
-  }
-  
-  delay(500);  // Small delay to allow for continuous reading
+    delay(100); // Add a delay to prevent excessive looping
 }
+    
